@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whiteboard Drawing</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Centering the content */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 900px;
+        }
+
+        canvas {
+            border: 1px solid #ddd;
+            cursor: crosshair;
+            width: 100%;
+            height: 400px;
+            background-color: white;
+        }
+
+        .controls {
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        input[type="color"], input[type="range"] {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Whiteboard Drawing</h1>
+        <canvas id="drawingCanvas" width="800" height="600"></canvas>
+        <div class="controls">
+            <button id="clearBtn">Clear</button>
+            <label for="colorPicker">Select Color: </label>
+            <input type="color" id="colorPicker" value="#000000">
+            <label for="lineWidth">Line Width: </label>
+            <input type="range" id="lineWidth" min="1" max="10" value="5">
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let drawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        const clearBtn = document.getElementById('clearBtn');
+        const colorPicker = document.getElementById('colorPicker');
+        const lineWidthPicker = document.getElementById('lineWidth');
+
+        // Set initial canvas settings
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = colorPicker.value;
+        ctx.lineWidth = lineWidthPicker.value;
+
+        // Start drawing
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();  // Prevent page scrolling
+            drawing = true;
+            const touch = e.touches[0];
+            [lastX, lastY] = [touch.clientX - canvas.offsetLeft, touch.clientY - canvas.offsetTop];
+        });
+
+        // Draw on the canvas
+        canvas.addEventListener('touchmove', (e) => {
+            if (!drawing) return;
+            const touch = e.touches[0];
+            const [x, y] = [touch.clientX - canvas.offsetLeft, touch.clientY - canvas.offsetTop];
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            [lastX, lastY] = [x, y];
+        });
+
+        // Stop drawing
+        canvas.addEventListener('touchend', () => {
+            drawing = false;
+        });
+
+        // Clear the canvas
+        clearBtn.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // Update color based on the color picker
+        colorPicker.addEventListener('input', (e) => {
+            ctx.strokeStyle = e.target.value;
+        });
+
+        // Update line width based on the slider
+        lineWidthPicker.addEventListener('input', (e) => {
+            ctx.lineWidth = e.target.value;
+        });
+    </script>
+</body>
+</html>
